@@ -58,7 +58,7 @@ def initialize(weights_path, hypes_path, options=None):
     return {'sess': sess, 'pred_boxes': pred_boxes, 'pred_confidences': pred_confidences, 'x_in': x_in, 'hypes': H}
 
 
-def hot_predict(image_path, init_params, to_json=True):
+def hot_predict(image_path, init_params, to_json=False):
     """Makes predictions when all long running preparation operations are made. 
     
     Args:
@@ -116,6 +116,7 @@ def prepare_options(hypes_path='hypes.json', options=None):
         H['evaluate'] = options
 
     os.environ['CUDA_VISIBLE_DEVICES'] = str(options['gpu'])
+    H['batch_size'] = 1
 
     return H
 
