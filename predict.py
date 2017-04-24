@@ -133,11 +133,14 @@ def save_results(image_path, anno):
     """
 
     # draw
-    new_img = Image.open(image_path)
-    d = ImageDraw.Draw(new_img)
-    for r in anno.rects:
-        d.rectangle([r.left(), r.top(), r.right(), r.bottom()], outline=(255, 0, 0))
-
+    
+    try:
+    	new_img = Image.open(image_path)
+    	d = ImageDraw.Draw(new_img)
+    	for r in anno.rects:
+            d.rectangle([r.left(), r.top(), r.right(), r.bottom()], outline=(255, 0, 0))
+    except:
+	print("FAILED to draw")
     # save
     try:
         fpath = os.path.join(os.path.dirname(image_path), 'result.png')
