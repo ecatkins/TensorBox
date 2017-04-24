@@ -53,7 +53,7 @@ def initialize(weights_path, hypes_path, options=None):
 
     saver = tf.train.Saver()
     sess = tf.Session()
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
     saver.restore(sess, weights_path)
     return {'sess': sess, 'pred_boxes': pred_boxes, 'pred_confidences': pred_confidences, 'x_in': x_in, 'hypes': H}
 
@@ -73,7 +73,7 @@ def hot_predict(image_path, init_params, to_json=False):
     options = H['evaluate']  # The options for more precise prediction of bounding boxes.
 
     # predict
-    orig_img = imread(image_path)[:, :, :3]
+    orig_img = imread(image_path, mode = 'RGB')[:, :, :3]
     img = imresize(orig_img, (H['image_height'], H['image_width']), interp='cubic')
     (np_pred_boxes, np_pred_confidences) = init_params['sess'].\
         run([init_params['pred_boxes'], init_params['pred_confidences']], feed_dict={init_params['x_in']: img})
@@ -139,17 +139,28 @@ def save_results(image_path, anno):
         d.rectangle([r.left(), r.top(), r.right(), r.bottom()], outline=(255, 0, 0))
 
     # save
-    fpath = os.path.join(os.path.dirname(image_path), 'result.png')
-    new_img.save(fpath)
-    subprocess.call(['chmod', '777', fpath])
-
-    fpath = os.path.join(os.path.dirname(image_path), 'result.json')
-    al.saveJSON(fpath, anno)
-    subprocess.call(['chmod', '777', fpath])
+    try:
+        fpath = os.path.join(os.path.dirname(image_path), 'result.png')
+        new_img.save(fpath)
+        subprocess.call(['chmod', '777', fpath])
+    except:
+        try:
+            fpath = os.path.join(os.path.dirname(image_path), 'result.png')
+            new_img.convert('RGB').save(fpath)
+            subprocess.call(['chmod', '777', fpath])
+        except:
+            print("Failed to save image")
+    try:
+        fpath = os.path.join(os.path.dirname(image_path), 'result.json')
+        al.saveJSON(fpath, anno)
+        subprocess.call(['chmod', '777', fpath])
+    except:
+        print("Failed to save json")
 
 
 def main():
     parser = OptionParser(usage='usage: %prog [options] <image> <weights> <hypes>')
+    parser.add_option('--multi',action = 'store_true', dest = 'multi', default = False)
     parser.add_option('--gpu', action='store', type='int', default=0)
     parser.add_option('--tau', action='store', type='float',  default=0.25)
     parser.add_option('--min_conf', action='store', type='float', default=0.2)
@@ -160,9 +171,17 @@ def main():
         print ('Provide image, weights and hypes paths')
         return
 
+    options_dict = options.__dict__
     init_params = initialize(args[1], args[2], options.__dict__)
-    pred_anno = hot_predict(args[0], init_params)
-    save_results(args[0], pred_anno)
+    if options_dict['multi'] == True:
+        image_list = json.loads(args[0])
+        for i_path in image_list:
+            print(i_path)
+            pred_anno = hot_predict(i_path, init_params)
+            save_results(i_path, pred_anno)
+    else:
+        pred_anno = hot_predict(args[0], init_params)
+        save_results(args[0], pred_anno)
 
 
 if __name__ == '__main__':
