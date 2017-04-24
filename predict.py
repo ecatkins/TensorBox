@@ -131,7 +131,6 @@ def save_results(image_path, anno):
     Returns: 
         Nothing.
     """
-
     # draw
     new_img = Image.open(image_path)
     d = ImageDraw.Draw(new_img)
