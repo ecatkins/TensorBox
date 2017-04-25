@@ -121,7 +121,7 @@ def prepare_options(hypes_path='hypes.json', options=None):
     return H
 
 
-def save_results(image_path, anno):
+def save_results(image_path, anno, prefix):
     """Saves results of the prediction.
     
     Args:
@@ -139,21 +139,21 @@ def save_results(image_path, anno):
     	for r in anno.rects:
             d.rectangle([r.left(), r.top(), r.right(), r.bottom()], outline=(255, 0, 0))
     except:
-	print("FAILED to draw")
+	   print("FAILED to draw")
     # save
     try:
-        fpath = os.path.join(os.path.dirname(image_path), 'result.png')
+        fpath = os.path.join(os.path.dirname(image_path), prefix + '-result.png')
         new_img.save(fpath)
         subprocess.call(['chmod', '777', fpath])
     except:
         try:
-            fpath = os.path.join(os.path.dirname(image_path), 'result.png')
+            fpath = os.path.join(os.path.dirname(image_path), prefix + '-result.png')
             new_img.convert('RGB').save(fpath)
             subprocess.call(['chmod', '777', fpath])
         except:
             print("Failed to save image")
     try:
-        fpath = os.path.join(os.path.dirname(image_path), 'result.json')
+        fpath = os.path.join(os.path.dirname(image_path), prefix + '-result.json')
         al.saveJSON(fpath, anno)
         subprocess.call(['chmod', '777', fpath])
     except:
@@ -163,6 +163,7 @@ def save_results(image_path, anno):
 def main():
     parser = OptionParser(usage='usage: %prog [options] <image> <weights> <hypes>')
     parser.add_option('--multi',action = 'store_true', dest = 'multi', default = False)
+    parser.add_option('--prefix',action = 'store', type = 'str', default = '')
     parser.add_option('--gpu', action='store', type='int', default=0)
     parser.add_option('--tau', action='store', type='float',  default=0.25)
     parser.add_option('--min_conf', action='store', type='float', default=0.2)
@@ -180,10 +181,10 @@ def main():
         for i_path in image_list:
             print(i_path)
             pred_anno = hot_predict(i_path, init_params)
-            save_results(i_path, pred_anno)
+            save_results(i_path, pred_anno, , prefix = options['prefix'])
     else:
         pred_anno = hot_predict(args[0], init_params)
-        save_results(args[0], pred_anno)
+        save_results(args[0], pred_anno, prefix = options['prefix'])
 
 
 if __name__ == '__main__':
