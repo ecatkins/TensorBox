@@ -184,7 +184,7 @@ def main():
             for i_path in image_list:
                 print(i_path)
                 try:
-                    sucess += 1
+                    success += 1
                     print("SUCCESS")
                     pred_anno = hot_predict(i_path, init_params)
                     save_results(i_path, pred_anno, prefix = options_dict['prefix'])
