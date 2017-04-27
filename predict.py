@@ -181,8 +181,12 @@ def main():
             image_list = json.load(json_file)
             for i_path in image_list:
                 print(i_path)
-                pred_anno = hot_predict(i_path, init_params)
-                save_results(i_path, pred_anno, prefix = options_dict['prefix'])
+                try:
+                    print("SUCCESS")
+                    pred_anno = hot_predict(i_path, init_params)
+                    save_results(i_path, pred_anno, prefix = options_dict['prefix'])
+                except:
+                    print("FAILED")
     else:
         pred_anno = hot_predict(args[0], init_params)
         save_results(args[0], pred_anno, prefix = options_dict['prefix'])
