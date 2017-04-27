@@ -174,6 +174,8 @@ def main():
         print ('Provide image, weights and hypes paths')
         return
 
+    success = 0
+    fail = 0
     options_dict = options.__dict__
     init_params = initialize(args[1], args[2], options.__dict__)
     if options_dict['multi'] == True:
@@ -182,11 +184,15 @@ def main():
             for i_path in image_list:
                 print(i_path)
                 try:
+                    sucess += 1
                     print("SUCCESS")
                     pred_anno = hot_predict(i_path, init_params)
                     save_results(i_path, pred_anno, prefix = options_dict['prefix'])
                 except:
+                    fail += 1
                     print("FAILED")
+        print("SUCCESS " + str(success))
+        print("FAIL " + str(fail))
     else:
         pred_anno = hot_predict(args[0], init_params)
         save_results(args[0], pred_anno, prefix = options_dict['prefix'])
