@@ -192,8 +192,8 @@ def main():
                     fail += 1
                     print("FAILED")
                     print(e)
-        print("SUCCESS " + str(success))
-        print("FAIL " + str(fail))
+                print("SUCCESS " + str(success))
+                print("FAIL " + str(fail))
     else:
         pred_anno = hot_predict(args[0], init_params)
         save_results(args[0], pred_anno, prefix = options_dict['prefix'])
