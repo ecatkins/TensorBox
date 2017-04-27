@@ -188,9 +188,10 @@ def main():
                     print("SUCCESS")
                     pred_anno = hot_predict(i_path, init_params)
                     save_results(i_path, pred_anno, prefix = options_dict['prefix'])
-                except:
+                except Exception as e:
                     fail += 1
                     print("FAILED")
+                    print(e)
         print("SUCCESS " + str(success))
         print("FAIL " + str(fail))
     else:
