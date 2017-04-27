@@ -134,12 +134,12 @@ def save_results(image_path, anno, prefix):
     # draw
     
     try:
-    	new_img = Image.open(image_path)
-    	d = ImageDraw.Draw(new_img)
-    	for r in anno.rects:
+        new_img = Image.open(image_path)
+        d = ImageDraw.Draw(new_img)
+        for r in anno.rects:
             d.rectangle([r.left(), r.top(), r.right(), r.bottom()], outline=(255, 0, 0))
     except:
-	   print("FAILED to draw")
+        print("FAILED to draw")
     # save
     try:
         fpath = os.path.join(os.path.dirname(image_path), prefix + '-result.png')
@@ -177,14 +177,15 @@ def main():
     options_dict = options.__dict__
     init_params = initialize(args[1], args[2], options.__dict__)
     if options_dict['multi'] == True:
-        image_list = json.loads(args[0])
-        for i_path in image_list:
-            print(i_path)
-            pred_anno = hot_predict(i_path, init_params)
-            save_results(i_path, pred_anno, , prefix = options['prefix'])
+        with open(args[0]) as json_file:
+            image_list = json.load(json_file)
+            for i_path in image_list:
+                print(i_path)
+                pred_anno = hot_predict(i_path, init_params)
+                save_results(i_path, pred_anno, prefix = options_dict['prefix'])
     else:
         pred_anno = hot_predict(args[0], init_params)
-        save_results(args[0], pred_anno, prefix = options['prefix'])
+        save_results(args[0], pred_anno, prefix = options_dict['prefix'])
 
 
 if __name__ == '__main__':
