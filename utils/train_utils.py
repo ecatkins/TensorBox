@@ -7,9 +7,9 @@ import itertools
 from scipy.misc import imread, imresize
 import tensorflow as tf
 
-from data_utils import (annotation_jitter, annotation_to_h5)
+from utils.data_utils import (annotation_jitter, annotation_to_h5)
 from utils.annolist import AnnotationLib as al
-from rect import Rect
+from utils.rect import Rect
 from utils import tf_concat
 
 def rescale_boxes(current_shape, anno, target_height, target_width, test=False):
@@ -152,12 +152,12 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
         for rect in rect_set:
             if rect.confidence > min_conf:
                 cv2.rectangle(image,
-                    (rect.cx-int(rect.width/2), rect.cy-int(rect.height/2)),
-                    (rect.cx+int(rect.width/2), rect.cy+int(rect.height/2)),
+                    (int(rect.cx)-int(rect.width/2), int(rect.cy)-int(rect.height/2)),
+                    (int(rect.cx)+int(rect.width/2), int(rect.cy)+int(rect.height/2)),
                     color,
                     1)
 
-    cv2.putText(image,str(len(filter(lambda rect:rect.confidence > min_conf, acc_rects))), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+    cv2.putText(image,str(len(list(filter(lambda rect:rect.confidence > min_conf, acc_rects)))), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
 
     rects = []
     for rect in acc_rects:

@@ -138,6 +138,7 @@ class TensorBox(object):
         early_feat_channels = self.H['early_feat_channels']
         early_feat = early_feat[:, :, :, :early_feat_channels]
 
+
         if self.H['deconv']:
             size = 3
             stride = 2
@@ -429,8 +430,8 @@ class TensorBox(object):
         with open(self.H['save_dir'] + '/hypes.json', 'w') as f:
             json.dump(self.H, f, indent=4)
 
-        self.H["grid_width"] = self.H["image_width"] / self.H["region_size"]
-        self.H["grid_height"] = self.H["image_height"] / self.H["region_size"]
+        self.H["grid_width"] = int(self.H["image_width"] / self.H["region_size"])
+        self.H["grid_height"] = int(self.H["image_height"] / self.H["region_size"])
 
         x_in = tf.placeholder(tf.float32)
         confs_in = tf.placeholder(tf.float32)
@@ -470,7 +471,7 @@ class TensorBox(object):
             for phase in ['train', 'test']:
                 # enqueue once manually to avoid thread start delay
                 gen = train_utils.load_data_gen(self.H, phase, jitter=self.H['solver']['use_jitter'])
-                d = gen.next()
+                d = next(gen)
                 sess.run(enqueue_op[phase], feed_dict=make_feed(d))
                 t = threading.Thread(target=thread_loop,
                                      args=(sess, enqueue_op, phase, gen))
@@ -501,7 +502,7 @@ class TensorBox(object):
             # train model for N iterations
             start = time.time()
             max_iter = self.H['solver'].get('max_iter', 10000000)
-            for i in xrange(max_iter):
+            for i in range(max_iter):
                 display_iter = self.H['logging']['display_iter']
                 adjusted_lr = (self.H['solver']['learning_rate'] *
                                0.5 ** max(0, (i / self.H['solver']['learning_rate_step']) - 2))
@@ -520,13 +521,13 @@ class TensorBox(object):
                                           summary_op, train_op, smooth_op,
                                          ], feed_dict=lr_feed)
                     writer.add_summary(summary_str, global_step=global_step.eval())
-                    print_str = string.join([
+                    print_str = ', '.join([
                         'Step: %d',
                         'lr: %f',
                         'Train Loss: %.2f',
                         'Softmax Test Accuracy: %.1f%%',
                         'Time/image (ms): %.1f'
-                    ], ', ')
+                    ])
                     print(print_str %
                           (i, adjusted_lr, train_loss,
                            test_accuracy * 100, dt * 1000 if i > 0 else 0))
